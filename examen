@@ -1,0 +1,37 @@
+import machine
+import ssd1306
+import dht
+
+# Configura el pin de datos del DHT22
+dht_pin = machine.Pin(2)  # Conecta el pin de datos del DHT22 al GPIO 2 de tu ESP32
+
+# Configura el módulo OLED SSD1306
+i2c = machine.I2C(scl=machine.Pin(22), sda=machine.Pin(21))  # Configura los pines SCL y SDA
+oled = ssd1306.SSD1306_I2C(128, 64, i2c)  # Configura el tamaño del OLED (128x64)
+
+# Crea un objeto DHT
+dht_sensor = dht.DHT22(dht_pin)  # Utiliza DHT22 en lugar de DHT11
+
+while True:
+    try:
+        # Lee la temperatura y humedad del sensor DHT22
+        dht_sensor.measure()
+        temperature = dht_sensor.temperature()
+        humidity = dht_sensor.humidity()
+
+        # Borra la pantalla OLED
+        oled.fill(0)
+        
+        # Muestra la temperatura y la humedad en el OLED
+        oled.text("Temperatura:", 0, 0)
+        oled.text(str(temperature) + " C", 0, 16)
+        oled.text("Humedad:", 0, 32)
+        oled.text(str(humidity) + " %", 0, 48)
+        
+        # Actualiza la pantalla OLED
+        oled.show()
+
+    except Exception as e:
+        print("Error:", e)
+
+    machine.idle()
